@@ -11,7 +11,7 @@ This package is provided to be used on golang and it gives clean methods to hand
 
 Run this commands
 
-    $ go get gopkg.in/yaml.v2
+    $ go get github.com/iamalirezaj/go-respond
 
 ## Usage
 
