@@ -248,7 +248,8 @@ func (respond Respond) MethodNotAllowed() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) ValidationErrors(errors map[string]interface{}) (int, interface{}) {
 
-	return respond.Error(420,5420)
+	return respond.SetStatusCode(420).
+		SetStatusText(respond.Message().Failed).SetErrorCode(5420).RespondWithResult(errors)
 }
 
 // The request field is not found

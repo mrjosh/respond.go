@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"gopkg.in/yaml.v2"
+	"os"
 )
 
 type Message struct {
@@ -28,7 +29,11 @@ type Message struct {
 // @return *Message
 func (message *Message) LoadConfig() *Message {
 
-	YmlFile, err := ioutil.ReadFile("./errors/" + message.Lang + ".yml")
+	gopath := os.Getenv("GOPATH")
+
+	directory := gopath + "/src/github.com/iamalirezaj/go-respond/errors/"
+
+	YmlFile, err := ioutil.ReadFile(directory  + message.Lang + ".yml")
 
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
