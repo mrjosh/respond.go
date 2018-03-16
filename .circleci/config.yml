@@ -11,5 +11,8 @@ jobs:
     steps:
       - checkout
 
+      # install gopkg.in/yaml.v2 package
+      - run: go get gopkg.in/yaml.v2
+
       # run test
       - run: go test

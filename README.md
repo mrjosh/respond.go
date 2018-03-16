@@ -8,12 +8,15 @@ This package is provided to be used on golang and it gives clean methods to hand
 
 # Requirement
 * Golang 1.10
+* gopkg.in/yaml.v2
 
 **The package is in process.**
 
 ## Install
 
 Run this commands
+
+    $ go get gopkg.in/yaml.v2
 
     $ go get github.com/iamalirezaj/go-respond
 
