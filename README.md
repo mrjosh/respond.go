@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.org/iamalirezaj/go-respond.svg?branch=develop)](https://travis-ci.org/iamalirezaj/go-respond)
+[![Build Status](https://circleci.com/gh/iamalirezaj/go-respond.svg?&style=shield)](https://circleci.com/gh/iamalirezaj/go-respond)
+[![Go Report](https://goreportcard.com/badge/github.com/iamalirezaj/go-respond)](https://goreportcard.com/report/github.com/iamalirezaj/go-respond)
 [![License](https://img.shields.io/:license-mit-blue.svg?style=flat-square)](#license)
-
 
 # Go Respond
 

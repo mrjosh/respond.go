@@ -1,0 +1,15 @@
+# Golang CircleCI 2.0 configuration file
+
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.10
+
+    working_directory: /go/src/github.com/iamalirezaj/go-respond
+    steps:
+      - checkout
+
+      # run test
+      - run: go test
