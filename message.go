@@ -1,16 +1,16 @@
 package josh
 
 import (
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
-	"gopkg.in/yaml.v2"
 	"os"
 )
 
 type Message struct {
 
 	// language of response
-	Lang   string
+	Lang string
 
 	// success field of response
 	Success string `yml:"success"`
@@ -33,7 +33,7 @@ func (message *Message) LoadConfig() *Message {
 
 	directory := gopath + "/src/github.com/iamalirezaj/go-respond/errors/"
 
-	YmlFile, err := ioutil.ReadFile(directory  + message.Lang + ".yml")
+	YmlFile, err := ioutil.ReadFile(directory + message.Lang + ".yml")
 
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)

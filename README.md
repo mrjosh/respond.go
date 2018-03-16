@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/iamalirezaj/go-respond.svg?branch=develop)](https://travis-ci.org/iamalirezaj/go-respond)
+[![License](https://img.shields.io/:license-mit-blue.svg?style=flat-square)](#license)
+
+
 # Go Respond
 
 This package is provided to be used on golang and it gives clean methods to handle json response with specific predetermined messages.

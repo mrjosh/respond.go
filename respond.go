@@ -14,7 +14,7 @@ type Respond struct {
 	errorCode int
 
 	// Language of response
-	// this option work with en.yml and fa.yml files for responsing
+	// this option work with en.yml and fa.yml files for responding
 	lang string
 }
 
@@ -80,10 +80,10 @@ func (respond Respond) SetStatusText(text string) Respond {
 
 // Pass response with result data like this array
 //
-//	array := map[string]interface{} {
-//		"status": respond.statusText,
-//		"result": result,
-//	}
+//      array := map[string]interface{} {
+//              "status": respond.statusText,
+//              "result": result,
+//      }
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
@@ -91,7 +91,7 @@ func (respond Respond) SetStatusText(text string) Respond {
 // @return (statuscode int, result interface{})
 func (respond Respond) RespondWithResult(result map[string]interface{}) (int, interface{}) {
 
-	return respond.statusCode, map[string]interface{} {
+	return respond.statusCode, map[string]interface{}{
 		"status": respond.statusText,
 		"result": result,
 	}
@@ -105,8 +105,8 @@ func (respond Respond) RespondWithResult(result map[string]interface{}) (int, in
 // @return (statuscode int, result interface{})
 func (respond Respond) RespondWithMessage(message interface{}) (int, interface{}) {
 
-	data := map[string]interface{} {
-		"status": respond.statusText,
+	data := map[string]interface{}{
+		"status":  respond.statusText,
 		"message": message,
 	}
 
@@ -124,14 +124,14 @@ func (respond Respond) RespondWithMessage(message interface{}) (int, interface{}
 // @return (statuscode int, result interface{})
 func (respond Respond) NotFound() (int, interface{}) {
 
-	return respond.Error(404,5404)
+	return respond.Error(404, 5404)
 }
 
 // return success result with data
 //
-//	data := map[string]interface{} {
-//		"data": "somedata"
-//	}
+//      data := map[string]interface{} {
+//              "data": "somedata"
+//      }
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
@@ -227,7 +227,7 @@ func (respond Respond) UpdateFailed() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) WrongParameters() (int, interface{}) {
 
-	return respond.Error(406,5406)
+	return respond.Error(406, 5406)
 }
 
 // Wrong parameters are entered
@@ -237,7 +237,7 @@ func (respond Respond) WrongParameters() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) MethodNotAllowed() (int, interface{}) {
 
-	return respond.Error(405,5405)
+	return respond.Error(405, 5405)
 }
 
 // There ara validation errors
@@ -259,7 +259,7 @@ func (respond Respond) ValidationErrors(errors map[string]interface{}) (int, int
 // @return (statuscode int, result interface{})
 func (respond Respond) RequestFieldNotfound() (int, interface{}) {
 
-	return respond.Error(446,1001)
+	return respond.Error(446, 1001)
 }
 
 // The request field is duplicated
@@ -269,7 +269,7 @@ func (respond Respond) RequestFieldNotfound() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) RequestFieldDuplicated() (int, interface{}) {
 
-	return respond.Error(400,1004)
+	return respond.Error(400, 1004)
 }
 
 // The error message
@@ -278,11 +278,10 @@ func (respond Respond) RequestFieldDuplicated() (int, interface{}) {
 // @since 15 Mar 2018
 // @param statusCode int,errorCode string
 // @return (statuscode int, result interface{})
-func (respond Respond) Error(statusCode int,errorCode int) (int, interface{}) {
+func (respond Respond) Error(statusCode int, errorCode int) (int, interface{}) {
 
 	message := respond.Message().Respond[strconv.Itoa(errorCode)]
 
 	return respond.SetStatusCode(statusCode).
 		SetStatusText(respond.Message().Failed).SetErrorCode(errorCode).RespondWithMessage(message["message"])
 }
-
