@@ -1,4 +1,4 @@
-package josh
+package respond
 
 import "strconv"
 
@@ -16,6 +16,12 @@ type Respond struct {
 	// Language of response
 	// this option work with en.yml and fa.yml files for responding
 	lang string
+}
+
+var Default = &Respond{}
+
+var DefaultWithLang = func(lang string) *Respond {
+	return &Respond{ lang: lang }
 }
 
 // Get message type
@@ -89,9 +95,9 @@ func (respond Respond) SetStatusText(text string) Respond {
 // @since 15 Mar 2018
 // @param result map[string]interface{}
 // @return (statuscode int, result interface{})
-func (respond Respond) RespondWithResult(result map[string]interface{}) (int, interface{}) {
+func (respond Respond) RespondWithResult(result interface{}) (int, interface{}) {
 
-	return respond.statusCode, map[string]interface{}{
+	return respond.statusCode, map[string] interface{}{
 		"status": respond.statusText,
 		"result": result,
 	}
@@ -137,7 +143,7 @@ func (respond Respond) NotFound() (int, interface{}) {
 // @since 15 Mar 2018
 // @param data map[string]interface{}
 // @return (statuscode int, result interface{})
-func (respond Respond) Succeed(data map[string]interface{}) (int, interface{}) {
+func (respond Respond) Succeed(data interface{}) (int, interface{}) {
 
 	return respond.SetStatusCode(200).SetStatusText(respond.Message().Success).RespondWithResult(data)
 }

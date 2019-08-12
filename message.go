@@ -1,4 +1,4 @@
-package josh
+package respond
 
 import (
 	"gopkg.in/yaml.v2"
