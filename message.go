@@ -1,10 +1,8 @@
 package respond
 
 import (
-	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"log"
-	"os"
+	"github.com/iamalirezaj/go-respond/translations/en"
+	"github.com/iamalirezaj/go-respond/translations/fa"
 )
 
 type Message struct {
@@ -13,13 +11,13 @@ type Message struct {
 	Lang string
 
 	// success field of response
-	Success string `yml:"success"`
+	Success string
 
 	// failed field of response
-	Failed string `yml:"failed"`
+	Failed string
 
 	// respond error messages
-	Respond map[string]map[interface{}]interface{} `json:"respond"`
+	Errors map[string] map[string] interface{}
 }
 
 // Load config of response language
@@ -29,20 +27,18 @@ type Message struct {
 // @return *Message
 func (message *Message) LoadConfig() *Message {
 
-	gopath := os.Getenv("GOPATH")
+	var translation map[string] interface{}
 
-	directory := gopath + "/src/github.com/iamalirezaj/go-respond/errors/"
-
-	YmlFile, err := ioutil.ReadFile(directory + message.Lang + ".yml")
-
-	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
+	switch message.Lang {
+	case "fa":
+		translation = fa.Errors
+	default:
+		translation = en.Errors
 	}
 
-	err = yaml.Unmarshal(YmlFile, &message)
-	if err != nil {
-		log.Fatalf("Unmarshal: %v", err)
-	}
+	message.Errors = translation["errors"].(map[string] map[string] interface{})
+	message.Success = translation["success"].(string)
+	message.Failed = translation["failed"].(string)
 
 	return message
 }

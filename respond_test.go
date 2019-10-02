@@ -12,7 +12,7 @@ func TestNotFound(test *testing.T) {
 	assert.Equal(test, 404, statusCode)
 	assert.Equal(test, map[string] interface{} {
 		"message": "Oops... The requested page not found!",
-		"status":  "Failed!",
+		"status":  "failed",
 		"error":   5404,
 	}, result)
 }
@@ -25,7 +25,7 @@ func TestSucceed(test *testing.T) {
 
 	assert.Equal(test, 200, statusCode)
 	assert.Equal(test, map[string] interface{} {
-		"status": "Success.",
+		"status": "success",
 		"result": map[string] interface{} {
 			"data": "Test",
 		},
@@ -38,8 +38,8 @@ func TestInsertSucceeded(test *testing.T) {
 
 	assert.Equal(test, 200, statusCode)
 	assert.Equal(test, map[string] interface{} {
-		"message": "The requested parameter is Added successfully!",
-		"status":  "Success.",
+		"message": "The requested parameter is added successfully!",
+		"status":  "success",
 	}, result)
 }
 
@@ -49,8 +49,8 @@ func TestInsertFailed(test *testing.T) {
 
 	assert.Equal(test, 448, statusCode)
 	assert.Equal(test, map[string] interface{} {
-		"message": "The requested parameter is not Added!",
-		"status":  "Failed!",
+		"message": "The requested parameter is not added!",
+		"status":  "failed",
 	}, result)
 }
 
@@ -61,7 +61,7 @@ func TestDeleteSucceeded(test *testing.T) {
 	assert.Equal(test, 200, statusCode)
 	assert.Equal(test, map[string] interface{} {
 		"message": "The requested parameter is deleted successfully!",
-		"status":  "Success.",
+		"status":  "success",
 	}, result)
 }
 
@@ -72,7 +72,7 @@ func TestDeleteFailed(test *testing.T) {
 	assert.Equal(test, 447, statusCode)
 	assert.Equal(test, map[string] interface{} {
 		"message": "The requested parameter is not deleted!",
-		"status":  "Failed!",
+		"status":  "failed",
 	}, result)
 }
 
@@ -83,7 +83,7 @@ func TestUpdateSucceeded(test *testing.T) {
 	assert.Equal(test, 200, statusCode)
 	assert.Equal(test, map[string] interface{} {
 		"message": "The requested parameter is updated successfully!",
-		"status":  "Success.",
+		"status":  "success",
 	}, result)
 }
 
@@ -94,7 +94,7 @@ func TestUpdateFailed(test *testing.T) {
 	assert.Equal(test, 449, statusCode)
 	assert.Equal(test, map[string] interface{} {
 		"message": "The requested parameter is not updated!",
-		"status":  "Failed!",
+		"status":  "failed",
 	}, result)
 }
 
@@ -105,7 +105,7 @@ func TestWrongParameters(test *testing.T) {
 	assert.Equal(test, 406, statusCode)
 	assert.Equal(test, map[string] interface{} {
 		"message": "Oops... The parameters you entered are wrong!",
-		"status":  "Failed!",
+		"status":  "failed",
 		"error":   5406,
 	}, result)
 }
@@ -117,7 +117,7 @@ func TestMethodNotAllowed(test *testing.T) {
 	assert.Equal(test, 405, statusCode)
 	assert.Equal(test, map[string] interface{} {
 		"message": "Oops... The method you requested is not allowed!",
-		"status":  "Failed!",
+		"status":  "failed",
 		"error":   5405,
 	}, result)
 }
@@ -130,7 +130,7 @@ func TestValidationErrors(test *testing.T) {
 
 	assert.Equal(test, 420, statusCode)
 	assert.Equal(test, map[string] interface{} {
-		"status": "Failed!",
+		"status": "failed",
 		"result": map[string] interface{} {
 			"data": "Test",
 		},
@@ -143,7 +143,7 @@ func TestRequestFieldNotfound(test *testing.T) {
 
 	assert.Equal(test, 446, statusCode)
 	assert.Equal(test, map[string] interface{} {
-		"status":  "Failed!",
+		"status":  "failed",
 		"error":   1001,
 		"message": "Oops... Requested field is not found!",
 	}, result)
@@ -155,7 +155,7 @@ func TestRequestFieldDuplicated(test *testing.T) {
 
 	assert.Equal(test, 400, statusCode)
 	assert.Equal(test, map[string] interface{} {
-		"status":  "Failed!",
+		"status":  "failed",
 		"error":   1004,
 		"message": "Failed because of duplicate",
 	}, result)
@@ -167,7 +167,7 @@ func TestDefaultWithLang(test *testing.T) {
 
 	assert.Equal(test, 404, statusCode)
 	assert.Equal(test, map[string] interface{} {
-		"status":  "نا موفق!",
+		"status":  "نا موفق",
 		"error":   5404,
 		"message": ".صفحه درخواست شده پیدا نمیشود",
 	}, result)

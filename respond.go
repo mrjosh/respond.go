@@ -155,7 +155,7 @@ func (respond Respond) Succeed(data interface{}) (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) InsertSucceeded() (int, interface{}) {
 
-	message := respond.Message().Respond["success"]
+	message := respond.Message().Errors["success"]
 
 	return respond.SetStatusCode(200).
 		SetStatusText(respond.Message().Success).RespondWithMessage(message["insert"])
@@ -168,7 +168,7 @@ func (respond Respond) InsertSucceeded() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) InsertFailed() (int, interface{}) {
 
-	message := respond.Message().Respond["failed"]
+	message := respond.Message().Errors["failed"]
 
 	return respond.SetStatusCode(448).
 		SetStatusText(respond.Message().Failed).RespondWithMessage(message["insert"])
@@ -181,7 +181,7 @@ func (respond Respond) InsertFailed() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) DeleteSucceeded() (int, interface{}) {
 
-	message := respond.Message().Respond["success"]
+	message := respond.Message().Errors["success"]
 
 	return respond.SetStatusCode(200).
 		SetStatusText(respond.Message().Success).RespondWithMessage(message["delete"])
@@ -194,7 +194,7 @@ func (respond Respond) DeleteSucceeded() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) DeleteFailed() (int, interface{}) {
 
-	message := respond.Message().Respond["failed"]
+	message := respond.Message().Errors["failed"]
 
 	return respond.SetStatusCode(447).
 		SetStatusText(respond.Message().Failed).RespondWithMessage(message["delete"])
@@ -207,7 +207,7 @@ func (respond Respond) DeleteFailed() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) UpdateSucceeded() (int, interface{}) {
 
-	message := respond.Message().Respond["success"]
+	message := respond.Message().Errors["success"]
 
 	return respond.SetStatusCode(200).
 		SetStatusText(respond.Message().Success).RespondWithMessage(message["update"])
@@ -220,7 +220,7 @@ func (respond Respond) UpdateSucceeded() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) UpdateFailed() (int, interface{}) {
 
-	message := respond.Message().Respond["failed"]
+	message := respond.Message().Errors["failed"]
 
 	return respond.SetStatusCode(449).
 		SetStatusText(respond.Message().Failed).RespondWithMessage(message["update"])
@@ -246,13 +246,13 @@ func (respond Respond) MethodNotAllowed() (int, interface{}) {
 	return respond.Error(405, 5405)
 }
 
-// There ara validation errors
+// There ara validation translations
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
-// @param errors map[string]interface{}
+// @param translations map[string]interface{}
 // @return (statuscode int, result interface{})
-func (respond Respond) ValidationErrors(errors map[string]interface{}) (int, interface{}) {
+func (respond Respond) ValidationErrors(errors interface{}) (int, interface{}) {
 
 	return respond.SetStatusCode(420).
 		SetStatusText(respond.Message().Failed).SetErrorCode(5420).RespondWithResult(errors)
@@ -286,7 +286,7 @@ func (respond Respond) RequestFieldDuplicated() (int, interface{}) {
 // @return (statuscode int, result interface{})
 func (respond Respond) Error(statusCode int, errorCode int) (int, interface{}) {
 
-	message := respond.Message().Respond[strconv.Itoa(errorCode)]
+	message := respond.Message().Errors[strconv.Itoa(errorCode)]
 
 	return respond.SetStatusCode(statusCode).
 		SetStatusText(respond.Message().Failed).SetErrorCode(errorCode).RespondWithMessage(message["message"])
