@@ -1,8 +1,8 @@
 package respond
 
 import (
-	"github.com/iamalirezaj/go-respond/translations/en"
-	"github.com/iamalirezaj/go-respond/translations/fa"
+	"github.com/MrJoshLab/go-respond/translations/en"
+	"github.com/MrJoshLab/go-respond/translations/fa"
 )
 
 type Message struct {
