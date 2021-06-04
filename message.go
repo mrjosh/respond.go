@@ -1,8 +1,8 @@
 package respond
 
 import (
-	"github.com/MrJoshLab/go-respond/translations/en"
-	"github.com/MrJoshLab/go-respond/translations/fa"
+	"github.com/mrjosh/respond.go/translations/en"
+	"github.com/mrjosh/respond.go/translations/fa"
 )
 
 type Message struct {
@@ -17,7 +17,7 @@ type Message struct {
 	Failed string
 
 	// respond error messages
-	Errors map[string] map[string] interface{}
+	Errors map[string]map[string]interface{}
 }
 
 // Load config of response language
@@ -27,7 +27,7 @@ type Message struct {
 // @return *Message
 func (message *Message) LoadConfig() *Message {
 
-	var translation map[string] interface{}
+	var translation map[string]interface{}
 
 	switch message.Lang {
 	case "fa":
@@ -36,7 +36,7 @@ func (message *Message) LoadConfig() *Message {
 		translation = en.Errors
 	}
 
-	message.Errors = translation["errors"].(map[string] map[string] interface{})
+	message.Errors = translation["errors"].(map[string]map[string]interface{})
 	message.Success = translation["success"].(string)
 	message.Failed = translation["failed"].(string)
 
