@@ -1,23 +1,35 @@
 package respond
 
 import (
+	"sync"
+
 	"github.com/mrjosh/respond.go/translations/en"
 	"github.com/mrjosh/respond.go/translations/fa"
 )
 
-type Message struct {
+type Messages struct {
+	Lang      string
+	Success   string
+	Failed    string
+	Errors    map[string]map[string]interface{}
+	Languages map[string]map[string]interface{}
+	sync.RWMutex
+}
 
-	// language of response
-	Lang string
+func NewMessages() *Messages {
+	return &Messages{
+		Lang: "en",
+		Languages: map[string]map[string]interface{}{
+			"fa": fa.Messages,
+			"en": en.Messages,
+		},
+	}
+}
 
-	// success field of response
-	Success string
-
-	// failed field of response
-	Failed string
-
-	// respond error messages
-	Errors map[string]map[string]interface{}
+func (m *Messages) AddLanguageTranslation(lang string, messages map[string]interface{}) {
+	m.Lock()
+	m.Languages[lang] = messages
+	m.Unlock()
 }
 
 // Load config of response language
@@ -25,20 +37,11 @@ type Message struct {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return *Message
-func (message *Message) LoadConfig() *Message {
-
-	var translation map[string]interface{}
-
-	switch message.Lang {
-	case "fa":
-		translation = fa.Errors
-	default:
-		translation = en.Errors
-	}
-
-	message.Errors = translation["errors"].(map[string]map[string]interface{})
-	message.Success = translation["success"].(string)
-	message.Failed = translation["failed"].(string)
-
-	return message
+func (m *Messages) load() {
+	m.RLock()
+	translation := m.Languages[m.Lang]
+	m.Errors = translation["errors"].(map[string]map[string]interface{})
+	m.Success = translation["success"].(string)
+	m.Failed = translation["failed"].(string)
+	m.RUnlock()
 }

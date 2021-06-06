@@ -1,6 +1,6 @@
 package fa
 
-var Errors = map[string]interface{}{
+var Messages = map[string]interface{}{
 
 	"success": "موفق",
 	"failed":  "نا موفق",

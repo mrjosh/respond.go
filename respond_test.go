@@ -1,175 +1,337 @@
 package respond
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNotFound(test *testing.T) {
-
-	statusCode, result := Default.NotFound()
-
-	assert.Equal(test, 404, statusCode)
-	assert.Equal(test, map[string]interface{}{
-		"message": "Oops... The requested page not found!",
-		"status":  "failed",
-		"error":   5404,
-	}, result)
+func getExpectedMap(r io.Reader) (map[string]interface{}, error) {
+	expected := map[string]interface{}{}
+	if err := json.NewDecoder(r).Decode(&expected); err != nil {
+		return nil, err
+	}
+	return expected, nil
 }
 
-func TestSucceed(test *testing.T) {
+func TestNotFound(t *testing.T) {
 
-	statusCode, result := Default.Succeed(map[string]interface{}{
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).NotFound()
+
+	assert.Equal(t, http.StatusNotFound, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
+		"message": "Oops... The requested page not found!",
+		"status":  "failed",
+		"error":   float64(5404),
+	}, expected)
+
+}
+
+func TestSucceed(t *testing.T) {
+
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).Succeed(map[string]interface{}{
 		"data": "Test",
 	})
 
-	assert.Equal(test, 200, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"status": "success",
 		"result": map[string]interface{}{
 			"data": "Test",
 		},
-	}, result)
+	}, expected)
 }
 
-func TestInsertSucceeded(test *testing.T) {
+func TestInsertSucceeded(t *testing.T) {
 
-	statusCode, result := Default.InsertSucceeded()
+	t.Parallel()
 
-	assert.Equal(test, 200, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).InsertSucceeded()
+
+	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "The requested parameter is added successfully!",
 		"status":  "success",
-	}, result)
+	}, expected)
 }
 
-func TestInsertFailed(test *testing.T) {
+func TestInsertFailed(t *testing.T) {
 
-	statusCode, result := Default.InsertFailed()
+	t.Parallel()
 
-	assert.Equal(test, 448, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).InsertFailed()
+
+	assert.Equal(t, 448, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "The requested parameter is not added!",
 		"status":  "failed",
-	}, result)
+	}, expected)
 }
 
-func TestDeleteSucceeded(test *testing.T) {
+func TestDeleteSucceeded(t *testing.T) {
 
-	statusCode, result := Default.DeleteSucceeded()
+	t.Parallel()
 
-	assert.Equal(test, 200, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).DeleteSucceeded()
+
+	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "The requested parameter is deleted successfully!",
 		"status":  "success",
-	}, result)
+	}, expected)
 }
 
-func TestDeleteFailed(test *testing.T) {
+func TestDeleteFailed(t *testing.T) {
 
-	statusCode, result := Default.DeleteFailed()
+	t.Parallel()
 
-	assert.Equal(test, 447, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).DeleteFailed()
+
+	assert.Equal(t, 447, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "The requested parameter is not deleted!",
 		"status":  "failed",
-	}, result)
+	}, expected)
 }
 
-func TestUpdateSucceeded(test *testing.T) {
+func TestUpdateSucceeded(t *testing.T) {
 
-	statusCode, result := Default.UpdateSucceeded()
+	t.Parallel()
 
-	assert.Equal(test, 200, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).UpdateSucceeded()
+
+	assert.Equal(t, http.StatusOK, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "The requested parameter is updated successfully!",
 		"status":  "success",
-	}, result)
+	}, expected)
 }
 
-func TestUpdateFailed(test *testing.T) {
+func TestUpdateFailed(t *testing.T) {
 
-	statusCode, result := Default.UpdateFailed()
+	t.Parallel()
 
-	assert.Equal(test, 449, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).UpdateFailed()
+
+	assert.Equal(t, 449, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "The requested parameter is not updated!",
 		"status":  "failed",
-	}, result)
+	}, expected)
 }
 
-func TestWrongParameters(test *testing.T) {
+func TestWrongParameters(t *testing.T) {
 
-	statusCode, result := Default.WrongParameters()
+	t.Parallel()
 
-	assert.Equal(test, 406, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).WrongParameters()
+
+	assert.Equal(t, 406, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "Oops... The parameters you entered are wrong!",
 		"status":  "failed",
-		"error":   5406,
-	}, result)
+		"error":   float64(5406),
+	}, expected)
 }
 
-func TestMethodNotAllowed(test *testing.T) {
+func TestMethodNotAllowed(t *testing.T) {
 
-	statusCode, result := Default.MethodNotAllowed()
+	t.Parallel()
 
-	assert.Equal(test, 405, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).MethodNotAllowed()
+
+	assert.Equal(t, 405, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"message": "Oops... The method you requested is not allowed!",
 		"status":  "failed",
-		"error":   5405,
-	}, result)
+		"error":   float64(5405),
+	}, expected)
 }
 
-func TestValidationErrors(test *testing.T) {
+func TestValidationErrors(t *testing.T) {
 
-	statusCode, result := Default.ValidationErrors(map[string]interface{}{
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).ValidationErrors(map[string]interface{}{
 		"data": "Test",
 	})
 
-	assert.Equal(test, 420, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	assert.Equal(t, 420, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"status": "failed",
 		"result": map[string]interface{}{
 			"data": "Test",
 		},
-	}, result)
+	}, expected)
 }
 
-func TestRequestFieldNotfound(test *testing.T) {
+func TestRequestFieldNotfound(t *testing.T) {
 
-	statusCode, result := Default.RequestFieldNotfound()
+	t.Parallel()
 
-	assert.Equal(test, 446, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).RequestFieldNotfound()
+
+	assert.Equal(t, 446, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"status":  "failed",
-		"error":   1001,
+		"error":   float64(1001),
 		"message": "Oops... Requested field is not found!",
-	}, result)
+	}, expected)
 }
 
-func TestRequestFieldDuplicated(test *testing.T) {
+func TestRequestFieldDuplicated(t *testing.T) {
 
-	statusCode, result := Default.RequestFieldDuplicated()
+	t.Parallel()
 
-	assert.Equal(test, 400, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).RequestFieldDuplicated()
+
+	assert.Equal(t, http.StatusBadRequest, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"status":  "failed",
-		"error":   1004,
+		"error":   float64(1004),
 		"message": "Failed because of duplicate",
-	}, result)
+	}, expected)
 }
 
-func TestDefaultWithLang(test *testing.T) {
+func TestDefaultWithLang(t *testing.T) {
 
-	statusCode, result := DefaultWithLang("fa").NotFound()
+	t.Parallel()
 
-	assert.Equal(test, 404, statusCode)
-	assert.Equal(test, map[string]interface{}{
+	recorder := httptest.NewRecorder()
+	NewWithWriter(recorder).Language("fa").NotFound()
+
+	assert.Equal(t, http.StatusNotFound, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
 		"status":  "نا موفق",
-		"error":   5404,
+		"error":   float64(5404),
 		"message": ".صفحه درخواست شده پیدا نمیشود",
-	}, result)
+	}, expected)
+}
+
+func TestCustomLanguage(t *testing.T) {
+
+	t.Parallel()
+
+	ruMessages := map[string]interface{}{
+		"success": "успех",
+		"failed":  "не смогли",
+		"errors": map[string]map[string]interface{}{
+			"5404": {
+				"message": "Упс ... Запрошенная страница не найдена!",
+				"type":    "ошибка",
+			},
+		},
+	}
+
+	var (
+		recorder = httptest.NewRecorder()
+		respond  = NewWithWriter(recorder)
+	)
+
+	respond.Messages().AddLanguageTranslation("ru", ruMessages)
+	respond.Language("ru").NotFound()
+
+	assert.Equal(t, http.StatusNotFound, recorder.Result().StatusCode)
+	assert.Equal(t, "application/json", recorder.Header().Get("Content-Type"))
+
+	expected, err := getExpectedMap(recorder.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, map[string]interface{}{
+		"status":  "не смогли",
+		"error":   float64(5404),
+		"message": "Упс ... Запрошенная страница не найдена!",
+	}, expected)
+
 }

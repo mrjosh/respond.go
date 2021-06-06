@@ -1,27 +1,37 @@
 package respond
 
-import "strconv"
+import (
+	"encoding/json"
+	"net/http"
+	"strconv"
+)
 
 type Respond struct {
-
-	// Status code of response
 	statusCode int
-
-	// Status text of response
 	statusText string
-
-	// Error code of response
-	errorCode int
-
-	// Language of response
-	// this option work with en.yml and fa.yml files for responding
-	lang string
+	errorCode  int
+	lang       string
+	messages   *Messages
+	writer     http.ResponseWriter
 }
 
-var Default = &Respond{}
+// Set language of responses
+//
+// @author Alireza Josheghani <josheghani.dev@gmail.com>
+// @since 6 Jun 2021
+// @return *Respond
+func (r *Respond) Language(lang string) *Respond {
+	r.lang = lang
+	return r
+}
 
-var DefaultWithLang = func(lang string) *Respond {
-	return &Respond{ lang: lang }
+// New respond type with custom writer
+//
+// @author Alireza Josheghani <josheghani.dev@gmail.com>
+// @since 6 Jun 2021
+// @return *Respond
+func NewWithWriter(w http.ResponseWriter) *Respond {
+	return &Respond{writer: w, messages: NewMessages()}
 }
 
 // Get message type
@@ -29,17 +39,12 @@ var DefaultWithLang = func(lang string) *Respond {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return *Message
-func (respond Respond) Message() *Message {
-
-	var message Message
-	message.Lang = respond.lang
-
-	if message.Lang == "" {
-		message.Lang = "en"
+func (r *Respond) Messages() *Messages {
+	if r.lang != "" {
+		r.messages.Lang = r.lang
 	}
-
-	data := message.LoadConfig()
-	return data
+	r.messages.load()
+	return r.messages
 }
 
 // Set status code of response and set default value as 0
@@ -48,26 +53,9 @@ func (respond Respond) Message() *Message {
 // @since 15 Mar 2018
 // @return Respond
 // @param code int
-func (respond Respond) SetStatusCode(code int) Respond {
-
-	if respond.statusCode == 0 {
-		respond.statusCode = code
-	}
-	return respond
-}
-
-// Set status code of response and set default value as 0
-//
-// @author Alireza Josheghani <josheghani.dev@gmail.com>
-// @since 15 Mar 2018
-// @return Respond
-// @param code int
-func (respond Respond) SetErrorCode(code int) Respond {
-
-	if respond.errorCode == 0 {
-		respond.errorCode = code
-	}
-	return respond
+func (r *Respond) SetStatusCode(code int) *Respond {
+	r.statusCode = code
+	return r
 }
 
 // Set status text of response
@@ -76,31 +64,57 @@ func (respond Respond) SetErrorCode(code int) Respond {
 // @since 15 Mar 2018
 // @return Respond
 // @param text string
-func (respond Respond) SetStatusText(text string) Respond {
+func (r *Respond) SetStatusText(text string) *Respond {
+	r.statusText = text
+	return r
+}
 
-	if respond.statusText == "" {
-		respond.statusText = text
+// Set status code of response and set default value as 0
+//
+// @author Alireza Josheghani <josheghani.dev@gmail.com>
+// @since 15 Mar 2018
+// @return Respond
+// @param code int
+func (r *Respond) SetErrorCode(code int) *Respond {
+	r.errorCode = code
+	return r
+}
+
+// Write json data to http.ResponseWriter
+//
+// @author Alireza Josheghani <josheghani.dev@gmail.com>
+// @since 6 Jun 2021
+// @param data interface{}
+// @return error
+func (r *Respond) writeJSON(data interface{}) error {
+	r.writer.Header().Add("Content-Type", "application/json")
+	b, err := json.Marshal(data)
+	if err != nil {
+		return err
 	}
-	return respond
+	if _, err := r.writer.Write(b); err != nil {
+		return nil
+	}
+	return nil
 }
 
 // Pass response with result data like this array
 //
 //      array := map[string]interface{} {
-//              "status": respond.statusText,
-//              "result": result,
+//        "status": respond.statusText,
+//        "result": result,
 //      }
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @param result map[string]interface{}
-// @return (statuscode int, result interface{})
-func (respond Respond) RespondWithResult(result interface{}) (int, interface{}) {
-
-	return respond.statusCode, map[string] interface{}{
-		"status": respond.statusText,
+// @return error
+func (r *Respond) RespondWithResult(result interface{}) {
+	r.writer.WriteHeader(r.statusCode)
+	r.writeJSON(map[string]interface{}{
+		"status": r.statusText,
 		"result": result,
-	}
+	})
 }
 
 // Pass response with message text as string
@@ -108,19 +122,17 @@ func (respond Respond) RespondWithResult(result interface{}) (int, interface{}) 
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @param message interface{}
-// @return (statuscode int, result interface{})
-func (respond Respond) RespondWithMessage(message interface{}) (int, interface{}) {
-
+// @return error
+func (r *Respond) RespondWithMessage(message interface{}) {
 	data := map[string]interface{}{
-		"status":  respond.statusText,
+		"status":  r.statusText,
 		"message": message,
 	}
-
-	if respond.errorCode != 0 {
-		data["error"] = respond.errorCode
+	if r.errorCode != 0 {
+		data["error"] = r.errorCode
 	}
-
-	return respond.statusCode, data
+	r.writer.WriteHeader(r.statusCode)
+	r.writeJSON(data)
 }
 
 // return notfound result
@@ -128,50 +140,45 @@ func (respond Respond) RespondWithMessage(message interface{}) (int, interface{}
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return (statuscode int, result interface{})
-func (respond Respond) NotFound() (int, interface{}) {
-
-	return respond.Error(404, 5404)
+func (r *Respond) NotFound() {
+	r.Error(404, 5404)
 }
 
 // return success result with data
 //
 //      data := map[string]interface{} {
-//              "data": "somedata"
+//        "data": "somedata"
 //      }
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @param data map[string]interface{}
-// @return (statuscode int, result interface{})
-func (respond Respond) Succeed(data interface{}) (int, interface{}) {
-
-	return respond.SetStatusCode(200).SetStatusText(respond.Message().Success).RespondWithResult(data)
+func (r *Respond) Succeed(data interface{}) {
+	r.SetStatusCode(http.StatusOK).
+		SetStatusText(r.Messages().Success).
+		RespondWithResult(data)
 }
 
 // Insert action is succeed
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
-// @return (statuscode int, result interface{})
-func (respond Respond) InsertSucceeded() (int, interface{}) {
-
-	message := respond.Message().Errors["success"]
-
-	return respond.SetStatusCode(200).
-		SetStatusText(respond.Message().Success).RespondWithMessage(message["insert"])
+func (r *Respond) InsertSucceeded() {
+	message := r.Messages().Errors["success"]
+	r.SetStatusCode(http.StatusOK).
+		SetStatusText(r.Messages().Success).
+		RespondWithMessage(message["insert"])
 }
 
 // Insert action is failed
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
-// @return (statuscode int, result interface{})
-func (respond Respond) InsertFailed() (int, interface{}) {
-
-	message := respond.Message().Errors["failed"]
-
-	return respond.SetStatusCode(448).
-		SetStatusText(respond.Message().Failed).RespondWithMessage(message["insert"])
+func (r *Respond) InsertFailed() {
+	message := r.Messages().Errors["failed"]
+	r.SetStatusCode(448).
+		SetStatusText(r.Messages().Failed).
+		RespondWithMessage(message["insert"])
 }
 
 // Delete action is succeed
@@ -179,12 +186,11 @@ func (respond Respond) InsertFailed() (int, interface{}) {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return (statuscode int, result interface{})
-func (respond Respond) DeleteSucceeded() (int, interface{}) {
-
-	message := respond.Message().Errors["success"]
-
-	return respond.SetStatusCode(200).
-		SetStatusText(respond.Message().Success).RespondWithMessage(message["delete"])
+func (r *Respond) DeleteSucceeded() {
+	message := r.Messages().Errors["success"]
+	r.SetStatusCode(200).
+		SetStatusText(r.Messages().Success).
+		RespondWithMessage(message["delete"])
 }
 
 // Delete action is failed
@@ -192,12 +198,11 @@ func (respond Respond) DeleteSucceeded() (int, interface{}) {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return (statuscode int, result interface{})
-func (respond Respond) DeleteFailed() (int, interface{}) {
-
-	message := respond.Message().Errors["failed"]
-
-	return respond.SetStatusCode(447).
-		SetStatusText(respond.Message().Failed).RespondWithMessage(message["delete"])
+func (r *Respond) DeleteFailed() {
+	message := r.Messages().Errors["failed"]
+	r.SetStatusCode(447).
+		SetStatusText(r.Messages().Failed).
+		RespondWithMessage(message["delete"])
 }
 
 // Update action is succeed
@@ -205,12 +210,11 @@ func (respond Respond) DeleteFailed() (int, interface{}) {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return (statuscode int, result interface{})
-func (respond Respond) UpdateSucceeded() (int, interface{}) {
-
-	message := respond.Message().Errors["success"]
-
-	return respond.SetStatusCode(200).
-		SetStatusText(respond.Message().Success).RespondWithMessage(message["update"])
+func (r *Respond) UpdateSucceeded() {
+	message := r.Messages().Errors["success"]
+	r.SetStatusCode(200).
+		SetStatusText(r.Messages().Success).
+		RespondWithMessage(message["update"])
 }
 
 // Update action is failed
@@ -218,32 +222,27 @@ func (respond Respond) UpdateSucceeded() (int, interface{}) {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return (statuscode int, result interface{})
-func (respond Respond) UpdateFailed() (int, interface{}) {
-
-	message := respond.Message().Errors["failed"]
-
-	return respond.SetStatusCode(449).
-		SetStatusText(respond.Message().Failed).RespondWithMessage(message["update"])
+func (r *Respond) UpdateFailed() {
+	message := r.Messages().Errors["failed"]
+	r.SetStatusCode(449).
+		SetStatusText(r.Messages().Failed).
+		RespondWithMessage(message["update"])
 }
 
 // Wrong parameters are entered
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
-// @return (statuscode int, result interface{})
-func (respond Respond) WrongParameters() (int, interface{}) {
-
-	return respond.Error(406, 5406)
+func (r *Respond) WrongParameters() {
+	r.Error(406, 5406)
 }
 
 // Wrong parameters are entered
 //
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
-// @return (statuscode int, result interface{})
-func (respond Respond) MethodNotAllowed() (int, interface{}) {
-
-	return respond.Error(405, 5405)
+func (r *Respond) MethodNotAllowed() {
+	r.Error(405, 5405)
 }
 
 // There ara validation translations
@@ -251,11 +250,11 @@ func (respond Respond) MethodNotAllowed() (int, interface{}) {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @param translations map[string]interface{}
-// @return (statuscode int, result interface{})
-func (respond Respond) ValidationErrors(errors interface{}) (int, interface{}) {
-
-	return respond.SetStatusCode(420).
-		SetStatusText(respond.Message().Failed).SetErrorCode(5420).RespondWithResult(errors)
+func (r *Respond) ValidationErrors(errors interface{}) {
+	r.SetStatusCode(420).
+		SetStatusText(r.Messages().Failed).
+		SetErrorCode(5420).
+		RespondWithResult(errors)
 }
 
 // The request field is not found
@@ -263,9 +262,8 @@ func (respond Respond) ValidationErrors(errors interface{}) (int, interface{}) {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return (statuscode int, result interface{})
-func (respond Respond) RequestFieldNotfound() (int, interface{}) {
-
-	return respond.Error(446, 1001)
+func (r *Respond) RequestFieldNotfound() {
+	r.Error(446, 1001)
 }
 
 // The request field is duplicated
@@ -273,9 +271,8 @@ func (respond Respond) RequestFieldNotfound() (int, interface{}) {
 // @author Alireza Josheghani <josheghani.dev@gmail.com>
 // @since 15 Mar 2018
 // @return (statuscode int, result interface{})
-func (respond Respond) RequestFieldDuplicated() (int, interface{}) {
-
-	return respond.Error(400, 1004)
+func (r *Respond) RequestFieldDuplicated() {
+	r.Error(400, 1004)
 }
 
 // The error message
@@ -284,10 +281,10 @@ func (respond Respond) RequestFieldDuplicated() (int, interface{}) {
 // @since 15 Mar 2018
 // @param statusCode int,errorCode string
 // @return (statuscode int, result interface{})
-func (respond Respond) Error(statusCode int, errorCode int) (int, interface{}) {
-
-	message := respond.Message().Errors[strconv.Itoa(errorCode)]
-
-	return respond.SetStatusCode(statusCode).
-		SetStatusText(respond.Message().Failed).SetErrorCode(errorCode).RespondWithMessage(message["message"])
+func (r *Respond) Error(statusCode int, errorCode int) {
+	message := r.Messages().Errors[strconv.Itoa(errorCode)]
+	r.SetStatusCode(statusCode).
+		SetStatusText(r.Messages().Failed).
+		SetErrorCode(errorCode).
+		RespondWithMessage(message["message"])
 }
