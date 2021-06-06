@@ -1,0 +1,13 @@
+kind: pipeline
+name: default
+
+steps:
+- name: test
+  image: golang:1.16
+  commands:
+  - go test -v -race
+
+trigger:
+  ref:
+  - "refs/heads/**"
+  - "refs/tags/**"
