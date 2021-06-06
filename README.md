@@ -12,10 +12,13 @@ import "github.com/mrjosh/respond.go"
 
 create respond instance
 ```go
-var jspon = respond.Default
+
+// argument rw is http.ResponseWriter or 
+// gin.Writer if youre using gin-gonic
+var jspon = respond.NewWithWriter(rw)
 
 // or if you want to use custom languages
-var jspon = respond.DefaultWithLang("fa")
+var jspon = respond.NewWithWriter(rw).Language("fa")
 ```
 
 **Some are shown below:**
@@ -23,7 +26,7 @@ var jspon = respond.DefaultWithLang("fa")
 When request succeeds and contains data to return as a result:
 ```go
 jspon.Succeed(map[string] interface{} {
-    "some_key": "some_data"
+  "some_key": "some_data"
 })
 ```
 
@@ -86,7 +89,7 @@ jspon.ValidationErrors(map[string] interface{} {
 ###customization
 You can do more:
 ```go
-jspon.SetStatusCode(200).setStatusText('Success.').RespondWithMessage('Your custom message')
+jspon.SetStatusCode(http.StatusOK).setStatusText("Success.").RespondWithMessage("Your custom message")
 ```
 
 ## License

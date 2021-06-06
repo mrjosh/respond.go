@@ -1,6 +1,6 @@
 package en
 
-var Errors = map[string]interface{}{
+var Messages = map[string]interface{}{
 
 	"success": "success",
 	"failed":  "failed",
