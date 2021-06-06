@@ -93,7 +93,7 @@ func (r *Respond) writeJSON(data interface{}) error {
 		return err
 	}
 	if _, err := r.writer.Write(b); err != nil {
-		return nil
+		return err
 	}
 	return nil
 }
