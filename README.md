@@ -89,7 +89,7 @@ jspon.ValidationErrors(map[string] interface{} {
 ###customization
 You can do more:
 ```go
-jspon.SetStatusCode(200).setStatusText('Success.').RespondWithMessage('Your custom message')
+jspon.SetStatusCode(http.StatusOK).setStatusText("Success.").RespondWithMessage("Your custom message")
 ```
 
 ## License
