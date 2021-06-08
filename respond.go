@@ -87,7 +87,6 @@ func (r *Respond) SetErrorCode(code int) *Respond {
 // @param data interface{}
 // @return error
 func (r *Respond) writeJSON(data interface{}) error {
-	r.writer.Header().Add("Content-Type", "application/json")
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -95,6 +94,7 @@ func (r *Respond) writeJSON(data interface{}) error {
 	if _, err := r.writer.Write(b); err != nil {
 		return err
 	}
+	r.writer.Header().Set("content-type", "application/json")
 	return nil
 }
 
